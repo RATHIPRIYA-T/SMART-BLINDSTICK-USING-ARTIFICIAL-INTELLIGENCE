@@ -1,0 +1,67 @@
+#include <SoftwareSerial.h>
+SoftwareSerial SIM900A(10,11); // RX | TX
+// Connect the SIM900A TX to Arduino pin 10 RX. 
+// Connect the SIM900A RX to Arduino pin 11 TX. 
+const int pingPin = 7; // Trigger Pin of Ultrasonic Sensor
+const int echoPin = 6; // Echo Pin of Ultrasonic Sensor
+const int buzzer = 9; //buzzer to arduino pin 9
+char c = ' ';
+void setup() {
+// start th serial communication with the host computer
+Serial.begin(9600);
+while(!Serial);
+Serial.println("Arduino with SIM900A is ready");
+// start communication with the SIM900A in 9600
+SIM900A.begin(9600); 
+Serial.println("SIM900A started at 9600");
+delay(1000);
+Serial.println("Setup Complete! SIM900A is Ready!");
+ Serial.begin(9600); // Starting Serial Terminal
+ pinMode(buzzer, OUTPUT); // Set buzzer - pin 9 as an output
+
+}
+
+void loop() {
+  
+// Keep reading from SIM800 and send to Arduino Serial Monitor
+if (SIM900A.available())
+{ c = SIM900A.read();
+Serial.write(c);}
+// Keep reading from Arduino Serial Monitor and send to SIM900A
+if (Serial.available())
+{ c = Serial.read();
+SIM900A.write(c); 
+}
+   long duration, inches, cm;
+   pinMode(pingPin, OUTPUT);
+   digitalWrite(pingPin, LOW);
+   delayMicroseconds(2);
+   digitalWrite(pingPin, HIGH);
+   delayMicroseconds(10);
+   digitalWrite(pingPin, LOW);
+   pinMode(echoPin, INPUT);
+   duration = pulseIn(echoPin, HIGH);
+   inches = microsecondsToInches(duration);
+   cm = microsecondsToCentimeters(duration);
+   Serial.print(inches);
+   Serial.print("in, ");
+   Serial.print(cm);
+   Serial.print("cm");
+   Serial.println();
+   delay(100);
+   {
+  tone(buzzer, 1000); // Send 1KHz sound signal...
+  delay(1000);        // ...for 1 sec
+  noTone(buzzer);     // Stop sound...
+  delay(1000);        // ...for 1sec
+
+}
+}
+
+long microsecondsToInches(long microseconds) {
+   return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds) {
+   return microseconds / 29 / 2;
+}
